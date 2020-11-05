@@ -1,5 +1,8 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
+import java.security.Principal;
+
 import javax.validation.Valid;
 
 import org.springframework.http.HttpHeaders;
@@ -11,13 +14,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.techelevator.tenmo.dao.AccountDAO;
 import com.techelevator.tenmo.dao.UserDAO;
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.LoginDTO;
 import com.techelevator.tenmo.model.RegisterUserDTO;
 import com.techelevator.tenmo.model.User;
@@ -34,11 +41,13 @@ public class AuthenticationController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private UserDAO userDAO;
+    private AccountDAO accountDAO;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountDAO accountDAO) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
+        this.accountDAO = accountDAO;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -68,7 +77,28 @@ public class AuthenticationController {
             userDAO.create(newUser.getUsername(),newUser.getPassword());
         }
     }
-
+    
+    /**
+     * gets balance
+     * 
+     *    @RequestMapping(value = "/balance", method = RequestMethod.GET)
+    public void accountBalance(@RequestHeader("Authorization")String authorization) {
+    	String token = authorization.replace("Bearer ", "");
+    	
+    	Authentication thisAuthentication = tokenProvider.getAuthentication(token);
+		BigDecimal account = accountDAO.findBalanceByUserName(thisAuthentication.getName());
+    }
+     */
+    
+    @RequestMapping(value = "/balance", method = RequestMethod.GET)
+    public BigDecimal accountBalance(Principal principal) {
+    	
+		BigDecimal account = accountDAO.findBalanceByUserName(principal.getName());
+		
+		return account;
+		
+		
+    }
     /**
      * Object to return as body in JWT Authentication.
      */

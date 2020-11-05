@@ -1,14 +1,28 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
+import java.security.Principal;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import com.techelevator.tenmo.models.Account;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.view.ConsoleService;
 
+import okhttp3.internal.http2.Header;
+
 public class App {
 
 private static final String API_BASE_URL = "http://localhost:8080/";
+public static String AUTH_TOKEN = "";
     
     private static final String MENU_OPTION_EXIT = "Exit";
     private static final String LOGIN_MENU_OPTION_REGISTER = "Register";
@@ -21,7 +35,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
-	
+	private static RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
@@ -68,7 +82,20 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+		//HttpHeaders headers = new HttpHeaders();
+		//headers.setContentType(MediaType.APPLICATION_JSON);
+    	//HttpEntity<UserCredentials> entity = new HttpEntity<>(headers);
+		//Account myAccount = restTemplate.getForObject(API_BASE_URL + "balance" , Account.class);
+		BigDecimal myAccount= restTemplate.exchange(API_BASE_URL +"balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+		System.out.println("your current balance is: " + myAccount);
+	}
+		
+	private HttpEntity makeAuthEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(currentUser.getToken());
+        HttpEntity entity = new HttpEntity<>(headers);
+        return entity;
+
 		
 	}
 
