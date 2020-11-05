@@ -39,6 +39,17 @@ public class TransfersSqlDAO implements TransfersDAO {
 		    return transfers;
 		  }
 	
+	@Override
+	public List<Transfers> listAllPendingTransfers() {
+		 List<Transfers> transfers = new ArrayList<>();
+		    String sql = "SELECT * FROM transfers WHERE transfer_status_id = 1";
+		    SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+		    while(results.next()) {
+		      Transfers pendingTransfer = mapRowToTransfers(results);
+		      transfers.add(pendingTransfer);
+		    }
+		    return transfers;
+	}
 	private Transfers mapRowToTransfers(SqlRowSet results) {
 		Transfers theTransfers = new Transfers();
 		theTransfers.setId(results.getLong("transfer_id"));

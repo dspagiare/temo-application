@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.techelevator.tenmo.dao.AccountDAO;
@@ -106,6 +107,23 @@ public class AuthenticationController {
     public List<Transfers> getAllTransfers() {
      	
     	return transfersDAO.allTransfers();
+    }
+    
+    /**
+     * 
+     * returns pending transfers
+     */
+    
+    @RequestMapping(value = "/pending_requests", method = RequestMethod.GET)
+    public List<Transfers> viewPendingRequests() {
+    	
+    	return transfersDAO.listAllPendingTransfers();
+    }
+    
+    @RequestMapping(value = "/transfers/{id}", method = RequestMethod.GET)
+    public Transfers getAllTransfers(@PathVariable long id) {
+     	
+    	return transfersDAO.detailsTransfersBasedOnId(id);
     }
     
     /**

@@ -18,6 +18,8 @@ import com.techelevator.tenmo.models.Transfers;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.services.BalanceService;
+import com.techelevator.tenmo.services.TransferService;
 import com.techelevator.view.ConsoleService;
 
 import okhttp3.internal.http2.Header;
@@ -42,7 +44,9 @@ public static String AUTH_TOKEN = "";
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
-
+    BalanceService balanceService = new BalanceService();
+    TransferService transferService = new TransferService();
+    
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
     	app.run();
@@ -66,11 +70,11 @@ public static String AUTH_TOKEN = "";
 		while(true) {
 			String choice = (String)console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if(MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-				viewCurrentBalance();
+				balanceService.viewCurrentBalance(currentUser);
 			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-				viewTransferHistory();
+				transferService.viewTransferHistory(currentUser);
 			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-				viewPendingRequests();
+				transferService.viewPendingRequests(currentUser);
 			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
 				sendBucks();
 			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
@@ -84,31 +88,7 @@ public static String AUTH_TOKEN = "";
 		}
 	}
 
-	private void viewCurrentBalance() {
-		
-		BigDecimal myAccount= restTemplate.exchange(API_BASE_URL +"balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
-		System.out.println("your current balance is: " + myAccount);
-	}
-		
 	
-	private void viewTransferHistory() {
-		Transfers[] allTransfers = null;
-		try {
-		  	allTransfers = restTemplate.exchange(API_BASE_URL + "transfers",HttpMethod.GET, makeAuthEntity(), Transfers[].class ).getBody();
-		  } catch (RestClientResponseException ex) {
-		   System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());
-		  } catch (ResourceAccessException ex) {
-		   System.out.println(ex.getMessage());
-		  }
-			
-			System.out.println(allTransfers);
-		}
-		
-
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
