@@ -59,6 +59,7 @@ public class AuthenticationService {
         }
 	}
 
+    
 	private String createLoginExceptionMessage(RestClientResponseException ex) {
 		String message = null;
 		if (ex.getRawStatusCode() == 401 && ex.getResponseBodyAsString().length() == 0) {
