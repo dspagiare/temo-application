@@ -8,4 +8,5 @@ public interface TransfersDAO {
 
 	List<Transfers> allTransfers();
 	Transfers detailsTransfersBasedOnId(Long id);
+	List<Transfers> listAllPendingTransfers();
 }
