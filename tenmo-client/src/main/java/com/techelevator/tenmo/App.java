@@ -8,10 +8,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.Account;
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.Transfers;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -82,27 +85,25 @@ public static String AUTH_TOKEN = "";
 	}
 
 	private void viewCurrentBalance() {
-		//HttpHeaders headers = new HttpHeaders();
-		//headers.setContentType(MediaType.APPLICATION_JSON);
-    	//HttpEntity<UserCredentials> entity = new HttpEntity<>(headers);
-		//Account myAccount = restTemplate.getForObject(API_BASE_URL + "balance" , Account.class);
+		
 		BigDecimal myAccount= restTemplate.exchange(API_BASE_URL +"balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
 		System.out.println("your current balance is: " + myAccount);
 	}
 		
-	private HttpEntity makeAuthEntity() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(currentUser.getToken());
-        HttpEntity entity = new HttpEntity<>(headers);
-        return entity;
-
-		
-	}
-
+	
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		Transfers[] allTransfers = null;
+		try {
+		  	allTransfers = restTemplate.exchange(API_BASE_URL + "transfers",HttpMethod.GET, makeAuthEntity(), Transfers[].class ).getBody();
+		  } catch (RestClientResponseException ex) {
+		   System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());
+		  } catch (ResourceAccessException ex) {
+		   System.out.println(ex.getMessage());
+		  }
+			
+			System.out.println(allTransfers);
+		}
 		
-	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
@@ -177,5 +178,14 @@ public static String AUTH_TOKEN = "";
 		String username = console.getUserInput("Username");
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
+	}
+	
+	private HttpEntity makeAuthEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(currentUser.getToken());
+        HttpEntity entity = new HttpEntity<>(headers);
+        return entity;
+
+		
 	}
 }

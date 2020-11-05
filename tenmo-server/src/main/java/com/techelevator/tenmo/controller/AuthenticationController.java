@@ -2,6 +2,7 @@ package com.techelevator.tenmo.controller;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -23,10 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.techelevator.tenmo.dao.AccountDAO;
+import com.techelevator.tenmo.dao.TransfersDAO;
 import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.LoginDTO;
 import com.techelevator.tenmo.model.RegisterUserDTO;
+import com.techelevator.tenmo.model.Transfers;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserAlreadyExistsException;
 import com.techelevator.tenmo.security.jwt.JWTFilter;
@@ -42,12 +45,14 @@ public class AuthenticationController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private UserDAO userDAO;
     private AccountDAO accountDAO;
+    private TransfersDAO transfersDAO;
 
     public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountDAO accountDAO) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
         this.accountDAO = accountDAO;
+        this.transfersDAO = transfersDAO;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -81,13 +86,6 @@ public class AuthenticationController {
     /**
      * gets balance
      * 
-     *    @RequestMapping(value = "/balance", method = RequestMethod.GET)
-    public void accountBalance(@RequestHeader("Authorization")String authorization) {
-    	String token = authorization.replace("Bearer ", "");
-    	
-    	Authentication thisAuthentication = tokenProvider.getAuthentication(token);
-		BigDecimal account = accountDAO.findBalanceByUserName(thisAuthentication.getName());
-    }
      */
     
     @RequestMapping(value = "/balance", method = RequestMethod.GET)
@@ -99,6 +97,17 @@ public class AuthenticationController {
 		
 		
     }
+    /**
+     * 
+     * gets all transfers
+     * 
+     */
+    @RequestMapping(value = "/transfers", method = RequestMethod.GET)
+    public List<Transfers> getAllTransfers() {
+     	
+    	return transfersDAO.allTransfers();
+    }
+    
     /**
      * Object to return as body in JWT Authentication.
      */
